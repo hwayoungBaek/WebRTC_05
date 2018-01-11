@@ -188,8 +188,5 @@ var app = new Vue({
             alert(response);
           });          
       }
-      changeNickname : function(event){
-          
-      }
     }
   })
