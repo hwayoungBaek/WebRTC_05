@@ -11,13 +11,6 @@ var vid2 = document.querySelector('#vid2');
 var btn_start = document.querySelector('#btn_start');
 var roomId = document.querySelector('#room_id');
 
-// nickname 수정 기능 추가
-var btn_change_nickname = document.querySelector("#btn_change_nickname"); // 바꾸기 버튼
-var newNickname = document.querySelector("#nickname"); // 내 이름 넣는 곳
-var callee_nickname = document.querySelector("#callee_nickname"); // 상대방 이름
-
-btn_change_nickname.addEventListener('click',changeNewNickname);
-
 btn_start.addEventListener('click', onStart);
 // ---------------------------------------------------------------------------------
 // Value
@@ -49,7 +42,6 @@ function cbGotRemoteStream(evt) {
     }
 }
 
-// g_mc_ws_component.sendMessage(JSON.stringify({code:'00', msg : {type:'88', data : nickname.value} }) );
 function onWsMessage(messageEvt) {
     console.info(messageEvt);
 
@@ -63,16 +55,7 @@ function onWsMessage(messageEvt) {
         onOffer();
     }
     else if (obj.code == '00') {
-        // try{
-        //     var obj2 = JSON.parse(obj.msg);
-        //     console.info("---------------------------obj2.type",obj2.type);
-        //     if(obj2.type == '88'){
-        //         console.info("---------------------------if조건문들어옴");
-        //         callee_nickname.value = obj2.data;
-        //     }
-        // }catch(error){
-        // }
-        receiveOffer(obj.msg);
+        receiveAnswer(obj.msg);
     }    
     else {
         alert('unknown error in onWsMessage');
@@ -176,15 +159,6 @@ function cbCheckIceCandidateAdded(candidateObject) {
 function cbCheckIceCandidateCompleted(descObject) {
     trace('cbCheckIceCandidateCompleted');
     g_mc_ws_component.sendMessage(descObject.sdp);
-}
-
-// 닉네임 바꾸는 함수 -> callee에게 새로운 nickname 전송하기
-function changeNewNickname(){
-    
-    // g_mc_ws_component.sendMessage(JSON.stringify({code:'88', msg : nickname.value} ));
-
-    console.info("new nickname : ",nickname.value);
-    g_mc_ws_component.sendMessage(JSON.stringify({code:'00', msg : {type:'88', data : nickname.value} }) );
 }
 
 
