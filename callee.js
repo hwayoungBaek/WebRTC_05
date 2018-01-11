@@ -12,9 +12,9 @@ var btn_start = document.querySelector('#btn_start');
 var roomId = document.querySelector('#room_id');
 
 // nickname 수정 기능 추가
-var btn_change_nickname = document.querySelector('#btn_change_nickname'); 
-var nickname = document.querySelector('#nickname');
-var caller_nickname = document.querySelector('#caller_nickname');
+var btn_change_nickname = document.querySelector("#btn_change_nickname"); // 바꾸기 버튼
+var newNickname = document.querySelector("#nickname"); // 내 이름 넣는 곳
+var caller_nickname = document.querySelector("#caller_nickname"); // 상대방 이름
 
 btn_change_nickname.addEventListener('click',changeNewNickname);
 
@@ -49,43 +49,29 @@ function cbGotRemoteStream(evt) {
     }
 }
 
-// tgt.send(JSON.stringify({ code: code, msg: message}));  // 객체 -> string 전송
-// send(JSON.stringify(code : '88' ,)
+// g_mc_ws_component.sendMessage(JSON.stringify({code:'00', msg : {type:'88', data : nickname.value} }) );
+// tgt.send(JSON.stringify({ code: code, msg: message}));
 function onWsMessage(messageEvt) {
     console.info(messageEvt);
 
-    var obj = JSON.parse(messageEvt.data);  // string-> 객체 obj code msg
+    var obj = JSON.parse(messageEvt.data);
     if (obj.code == '99') {
         alert(obj.msg);
     }
     else if (obj.code == '01') {
         // start
         console.info('start in onWsMessage');
-        //onOffer();
     }
-    else if (obj.code == '00') {   // room name
-
-        console.info("obj.code ==00");
-        try {
-            // 새로운 nickname 데이터를 받았을 때
-            // 전송타입
-            // JSON.stringify({code:'00', msg : {type:'88', data : nickname.value} }
-            var obj2 = JSON.parse(obj.msg); // string -> 객체
-
-            if (obj2.type == '88') {
-                // start버튼 누른거인데도 여기에 들어와 !! 여기에 들어오면 안되는데
-                //console.info({ room: room_name }, "new room created");
-                console.log('obj.code가 88인지 확인');
-                console.log(obj2.type);
-                alert('88');
-                caller_nickname.value = obj2.data; // 상대방 닉네임 변경
-            }
-            else{
-                receiveOffer(obj.msg);
-                console.log('obj.code가 88인지 확인 - receiveOffer실행됨');
-            }
-        } catch (error) {
-        }
+    else if (obj.code == '00') {
+        // try{
+        //     var obj2 = JSON.parse(obj.msg);
+        //     console.info("---------------------------obj2.type",obj2.type);
+        //     if(obj2.type == '88'){
+        //         caller_nickname.value = obj2.data;
+        //     }
+        // }catch(error){
+        // }
+        receiveOffer(obj.msg);
     }    
     else {
         alert('unknown error in onWsMessage');
@@ -93,7 +79,7 @@ function onWsMessage(messageEvt) {
 }
 
 function onStart() {
-    var url = SIGNAL_SERVER_WS_URL + '/room/' + roomId.valuee;
+    var url = SIGNAL_SERVER_WS_URL + '/room/' + roomId.value;
     g_mc_ws_component.connect(url, onWsMessage);
 
     var cfg = {
@@ -202,18 +188,13 @@ function onCheckIceCandidateCompleted(descObject) {
     g_mc_ws_component.sendMessage(descObject.sdp);
 }
 
-// 내 닉네임 바꿈 -> 상대방에게 전송
+// 닉네임 바꾸는 함수 -> caller에게 새로운 nickname 전송하기
 function changeNewNickname(){
-    console.info(nickname.value);
     
-    //g_mc_ws_component.sendMessage(JSON.stringify({code:'00', msg : {type:'88', data : nickname.value} }) );
-    g_mc_ws_component.sendMessage(JSON.stringify({code:'88', msg : nickname.value} ));
-}
+    // g_mc_ws_component.sendMessage(JSON.stringify({code:'88', msg : nickname.value} ));
 
-// 상대방이 닉네임 바꿈 ->데이터 받음-> 내 화면에서 수정해주기
-// onWsMessage함수에서 데이터 받자마자 화면에 수정 바로 해줘서 필요없는 것 같음
-function getNewNickname(){
-
+    console.info("new nickname : ",nickname.value);
+    g_mc_ws_component.sendMessage(JSON.stringify({code:'00', msg : {type:'88', data : nickname.value} }) );
 }
 
 var app = new Vue({
@@ -232,6 +213,6 @@ var app = new Vue({
           }, response => {
             alert(response);
           });          
-        }
+      }
     }
   })
